@@ -7,7 +7,7 @@ const auditLogService = require('./services/auditLog.service');
 
 const app = express();
 
-//  MIDDLEWARES GLOBALES DE SEGURIDAD
+//MIDDLEWARES GLOBALES DE SEGURIDAD
 
 app.use(helmet()); 
 app.use(express.json()); 
@@ -30,7 +30,6 @@ app.use(async (req, res, next) => {
   } catch (rejRes) {
     const retryAfter = Math.round(rejRes.msBeforeNext / 1000);
     
-
     await auditLogService.log('security.rate_limited', req, {
       metadata: { retryAfter }
     });
@@ -41,14 +40,13 @@ app.use(async (req, res, next) => {
 });
 
 
-//  RUTAS
-
+// RUTAS
 app.use('/api/auth', require('./routes/auth.routes'));
+// Inyectamos las rutas de tareas que creamos (con ABAC)
+app.use('/api', require('./routes/task.routes'));
 
 
-// ERROR HANDLER CENTRALIZADO 
-
-
+// MIDDLEWARE GLOBAL DE MANEJO DE ERRORES CON AUDITORÍA
 
 app.use(async (err, req, res, next) => {
 
@@ -57,7 +55,6 @@ app.use(async (err, req, res, next) => {
       metadata: { reason: err.message, path: req.originalUrl }
     });
   }
-
 
   console.error("🔍 ERROR DETECTADO:", err); 
 
