@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const { RateLimiterMemory } = require('rate-limiter-flexible');
 const auditLogService = require('./services/auditLog.service');
 
+
 const app = express();
 
 //MIDDLEWARES GLOBALES DE SEGURIDAD
@@ -42,9 +43,8 @@ app.use(async (req, res, next) => {
 
 // RUTAS
 app.use('/api/auth', require('./routes/auth.routes'));
-// Inyectamos las rutas de tareas que creamos (con ABAC)
 app.use('/api', require('./routes/task.routes'));
-
+app.use('/api', require('./routes/project.routes'));
 
 // MIDDLEWARE GLOBAL DE MANEJO DE ERRORES CON AUDITORÍA
 

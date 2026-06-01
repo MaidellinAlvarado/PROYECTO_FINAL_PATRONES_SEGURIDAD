@@ -1,19 +1,18 @@
-const Project = require('../models/Project');
+const Project = require('../models/porject.model');
 const Membership = require('../models/membership.model');
 const auditLogService = require('../services/auditLog.service');
+const { decrypt } = require('../security/encryption');
 
 const projectController = {
 
-  // CREAR UN PROYECTO
+  // CREAR UN PROYECTO 
   createProject: async (req, res, next) => {
     try {
       const { name, description, visibility } = req.body;
       const { orgId } = req.params; 
       
-
       const creatorId = req.user.id; 
 
-      // Crear el registro del Proyecto
       const newProject = new Project({
         name,
         description,
@@ -23,7 +22,6 @@ const projectController = {
       });
       await newProject.save();
 
-      //  Asignar al creador como 'project_admin'
       const adminMembership = new Membership({
         userId: creatorId,
         projectId: newProject._id,
@@ -31,7 +29,6 @@ const projectController = {
       });
       await adminMembership.save();
 
-      //  Dejar rastro en el Audit Log
       await auditLogService.log('project.create', req, {
         actorId: creatorId,
         resourceType: 'Project',
@@ -44,6 +41,32 @@ const projectController = {
         project: newProject 
       });
 
+    } catch (error) {
+      next(error);
+    }
+  }, 
+
+  // OBTENER PROYECTO 
+  getProjectById: async (req, res, next) => {
+    try {
+      // Usamos .lean() para que Mongoose nos devuelva un objeto modificable
+      const project = await Project.findById(req.params.id).lean();
+      
+      if (!project) {
+        return res.status(404).json({ message: 'Proyecto no encontrado' });
+      }
+
+      // Desciframos la descripción antes de enviarla
+      if (project.description) {
+        try {
+          project.description = decrypt(project.description);
+        } catch (err) {
+          console.error('Error al descifrar:', err);
+          project.description = '[Error: No se pudo descifrar el contenido]';
+        }
+      }
+
+      res.status(200).json(project);
     } catch (error) {
       next(error);
     }

@@ -24,8 +24,7 @@ const canEditTask = (user, task, membership) => {
 };
 
 // Solo project_admin y developer pueden crear tareas, pero el developer solo puede crear tareas que le asignen a él mismo
-const canCreateTask = (user, membership) => {
-  if (!membership) return false;
+const canCreateTask = (user, task, membership) => { 
   return ['developer', 'project_admin'].includes(membership.role);
 };
 
