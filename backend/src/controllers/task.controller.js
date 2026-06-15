@@ -1,7 +1,8 @@
 const Task = require('../models/Task');
+
 const taskController = {
 
-// GET /api/projects/:projectId/tasks
+  // GET /api/projects/:projectId/tasks
   getProjectTasks: async (req, res, next) => {
     try {
       const { projectId } = req.params;
@@ -40,15 +41,58 @@ const taskController = {
   updateTask: async (req, res, next) => {
     try {
       const { id } = req.params;
-      const updateData = req.body;
+      
+      // Para evitar que se actualicen campos no permitidos, solo extraemos los campos seguros
+      const { title, description, priority, dueDate, sensitive } = req.body;
 
-      // Actualizamos la tarea
-      const updatedTask = await Task.findByIdAndUpdate(id, updateData, { new: true });
-      res.status(200).json({ message: 'Tarea actualizada', task: updatedTask });
+      // Construimos un objeto con solo los campos permitidos que fueron enviados
+      const safeUpdateData = {};
+      if (title !== undefined) safeUpdateData.title = title;
+      if (description !== undefined) safeUpdateData.description = description;
+      if (priority !== undefined) safeUpdateData.priority = priority;
+      if (dueDate !== undefined) safeUpdateData.dueDate = dueDate;
+      if (sensitive !== undefined) safeUpdateData.sensitive = sensitive;
+
+      // Actualizamos la tarea con solo los campos permitidos
+      const updatedTask = await Task.findByIdAndUpdate(
+        id, 
+        { $set: safeUpdateData }, 
+        { new: true, runValidators: true } 
+      );
+
+      res.status(200).json({ message: 'Tarea actualizada de forma segura', task: updatedTask });
+    } catch (error) {
+      next(error);
+    }
+  }, 
+
+  // PATCH /api/tasks/:id/status
+  changeTaskStatus: async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body; // Solo extraemos el estado
+
+      if (!status) {
+        return res.status(400).json({ message: 'El campo status es requerido' });
+      }
+
+      // Actualizamos únicamente el estado de la tarea
+      const updatedTask = await Task.findByIdAndUpdate(
+        id, 
+        { $set: { status: status } }, 
+        { new: true, runValidators: true } // runValidators asegura que sea un status válido (backlog, done, etc.)
+      );
+
+      if (!updatedTask) {
+        return res.status(404).json({ message: 'Tarea no encontrada' });
+      }
+
+      res.status(200).json({ message: 'Estado de la tarea actualizado', task: updatedTask });
     } catch (error) {
       next(error);
     }
   }
-};
+
+}; 
 
 module.exports = taskController;

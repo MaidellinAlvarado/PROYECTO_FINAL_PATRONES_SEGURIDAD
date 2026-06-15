@@ -4,7 +4,7 @@ const taskController = require('../controllers/task.controller');
 
 // Importamos el middleware de autenticación y el de verificación de permisos
 const { checkTaskPermission } = require('../middlewares/checkPermission');
-const { canReadTask, canCreateTask, canEditTask } = require('../policies/task.policies');
+const { canReadTask, canCreateTask, canEditTask , canChangeTaskStatus} = require('../policies/task.policies');
 // Middleware de autenticación para proteger todas las rutas de tareas
 const { authenticateToken } = require('../middlewares/auth.middleware'); 
 
@@ -19,5 +19,7 @@ router.post('/projects/:projectId/tasks', checkTaskPermission(canCreateTask), ta
 
 // Un admin puede editar cualquier tarea, un developer solo puede editar tareas que le estén asignadas a él
 router.put('/tasks/:id', checkTaskPermission(canEditTask), taskController.updateTask);
+
+router.patch('/tasks/:id/status', checkTaskPermission(canChangeTaskStatus), taskController.changeTaskStatus);
 
 module.exports = router;

@@ -49,7 +49,6 @@ const projectController = {
   // OBTENER PROYECTO 
   getProjectById: async (req, res, next) => {
     try {
-      // Usamos .lean() para que Mongoose nos devuelva un objeto modificable
       const project = await Project.findById(req.params.id).lean();
       
       if (!project) {

@@ -14,6 +14,20 @@ const projectSchema = new mongoose.Schema({
     get: encryption.decrypt
   },
 
+
+  members: [{
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    role: {
+      type: String,
+      enum: ['project_admin', 'developer', 'viewer'],
+      required: true
+    }
+  }],
+
   // Referencia a la organización propietaria del proyecto
   orgId: { 
     type: mongoose.Schema.Types.ObjectId, 

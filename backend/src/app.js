@@ -6,6 +6,8 @@ const { RateLimiterMemory } = require('rate-limiter-flexible');
 const auditLogService = require('./services/auditLog.service');
 
 
+
+
 const app = express();
 
 //MIDDLEWARES GLOBALES DE SEGURIDAD
@@ -17,6 +19,9 @@ app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true 
 }));
+
+app.use('/api/orgs', require('./routes/organization.routes'));
+
 
 // RATE LIMITER CON AUDITORÍA 
 const rateLimiter = new RateLimiterMemory({
@@ -50,13 +55,9 @@ app.use('/api', require('./routes/project.routes'));
 
 app.use(async (err, req, res, next) => {
 
-  if (err.status === 403) {
-    await auditLogService.log('security.unauthorized', req, {
-      metadata: { reason: err.message, path: req.originalUrl }
-    });
-  }
-
-  console.error("🔍 ERROR DETECTADO:", err); 
+if (process.env.NODE_ENV !== 'production') {
+    console.error("🔍 ERROR DETECTADO:", err);
+}
 
   const status = err.status || 500;
   const message = status === 500 ? 'Error interno del servidor' : err.message;

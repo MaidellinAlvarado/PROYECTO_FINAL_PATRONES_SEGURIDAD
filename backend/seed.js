@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 
 // Importamos los modelos 
 const User = require('./src/models/User');
-const Project = require('./src/models/porject.model');
 const Membership = require('./src/models/membership.model');
+const Project = require('./src/models/porject.model');
 const Task = require('./src/models/Task');
 
 async function seedDatabase() {
