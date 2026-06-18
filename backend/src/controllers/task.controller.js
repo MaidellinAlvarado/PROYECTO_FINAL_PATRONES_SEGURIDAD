@@ -70,7 +70,7 @@ const taskController = {
   changeTaskStatus: async (req, res, next) => {
     try {
       const { id } = req.params;
-      const { status } = req.body; // Solo extraemos el estado
+      const { status } = req.body; 
 
       if (!status) {
         return res.status(400).json({ message: 'El campo status es requerido' });
@@ -80,7 +80,7 @@ const taskController = {
       const updatedTask = await Task.findByIdAndUpdate(
         id, 
         { $set: { status: status } }, 
-        { new: true, runValidators: true } // runValidators asegura que sea un status válido (backlog, done, etc.)
+        { new: true, runValidators: true } 
       );
 
       if (!updatedTask) {

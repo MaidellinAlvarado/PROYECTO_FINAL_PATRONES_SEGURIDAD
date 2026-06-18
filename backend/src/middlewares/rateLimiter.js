@@ -10,13 +10,13 @@ const loginLimiter = new RateLimiterMemory({
 // Límite para Registro (3 intentos por hora)
 const registerLimiter = new RateLimiterMemory({
   points: 3, 
-  duration: 60 * 60, 
+  duration: 60*60, 
 });
 
 //  Límite General (100 requests por minuto)
 const generalLimiter = new RateLimiterMemory({
-  points: 100, 
-  duration: 60, 
+  points: 100, // 100 requests
+  duration: 60, // 1 minuto
 });
 
 // Middleware genérico para aplicar cualquier limitador
